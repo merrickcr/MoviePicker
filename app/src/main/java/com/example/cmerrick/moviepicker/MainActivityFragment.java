@@ -38,6 +38,8 @@ public class MainActivityFragment extends Fragment implements MovieRequestHelper
 
     GridView gridView;
 
+    public static final String MOVIES_KEY = "movies";
+
     final static String BACKDROP_URL = "http://image.tmdb.org/t/p/w500/";
 
     public MainActivityFragment() {
@@ -94,15 +96,32 @@ public class MainActivityFragment extends Fragment implements MovieRequestHelper
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
         setHasOptionsMenu(true);
+        gridView = (GridView) view.findViewById(R.id.gridView);
+
+        if(savedInstanceState != null){
+            movies = (ArrayList<Movie>)savedInstanceState.getSerializable(MOVIES_KEY);
+        }
 
         movieRequestHelper = new MovieRequestHelper(this);
 
-        movieRequestHelper.sendDiscoverMovieRequest();
+        if(movies == null || movies.isEmpty()){
+            movieRequestHelper.sendDiscoverMovieRequest();
+        }
+        else{
+            setupMovieList();
+        }
 
-        gridView = (GridView) view.findViewById(R.id.gridView);
+    }
 
+    @Override
+    public void onViewStateRestored(Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+    }
+
+    @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
     }
 
     public void setupMovieList() {
@@ -151,6 +170,13 @@ public class MainActivityFragment extends Fragment implements MovieRequestHelper
         } catch (NullPointerException e) {
             e.printStackTrace();
         }
+
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putSerializable(MOVIES_KEY, movies);
 
     }
 
